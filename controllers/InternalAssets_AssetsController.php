@@ -139,6 +139,14 @@ class InternalAssets_AssetsController extends BaseController {
                 header('Content-Length: ' . filesize($filepath));
                 header('Accept-Ranges: bytes');
             }
+            // use an optimized header for word files
+            elseif ($mimeType == "application/msword") {
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . $filename . '"');
+                header('Content-Transfer-Encoding: binary');
+                header('Content-Length: ' . filesize($filepath));
+                header('Accept-Ranges: bytes');
+            }
             else {
                 header('Content-type: '.$file->getMimeType());
             }
