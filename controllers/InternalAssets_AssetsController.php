@@ -47,13 +47,34 @@ class InternalAssets_AssetsController extends BaseController {
 
         // now we have to get the path to the filename
         foreach($files as $file) {
+            $match = false;
 
             // get the full path to the file directory
             $path = $this->_getFullDirectoryPath($file) . $requestedTransform;
 
+            $pathParts = explode('/', $filePath);
+            $lastPart = $pathParts[count($pathParts) - 1];
+
+            // Does the last directory start with an underscore, if so, set alternative path?
+            if (substr($lastPart, 0, 1) == '_') {
+                unset($pathParts[count($pathParts) - 1]);
+                $secondPath = implode('/', $pathParts);
+            }
+
             // now will check if our requested filepath matches the files path
             if (strpos($path, $filePath)) {
+                $match = true;
+            }
+            // Check if the original image exists.
+            elseif (isset($secondPath) && strpos($path, $secondPath)) {
+                $path = str_replace($secondPath, $filePath, $path);
 
+                if (file_exists($path)) {
+                    $match = true;
+                }
+            }
+
+            if ($match) {
                 if ($file) {
                     // deliver file to the clienct (if permission granted)
                     $this->_sendFile($file, $path);
