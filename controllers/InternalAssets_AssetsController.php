@@ -24,7 +24,7 @@ class InternalAssets_AssetsController extends BaseController {
     {
         // get the directory and filename submitted
         $directoryName = $this->actionParams['variables']['matches']['directory'];
-        $fileName= $this->actionParams['variables']['matches']['name'];
+        $fileName = trim(str_replace('*', '', $this->actionParams['variables']['matches']['name']));
 
         // create a resolved path from the directory name
         $filePath = craft()->config->parseEnvironmentString($directoryName);
@@ -110,14 +110,19 @@ class InternalAssets_AssetsController extends BaseController {
     // find all files that match the criteria
     private function _findFilesByName($fileName)
     {
-        // define our matching criteria
-        $match = array('filename' => $fileName);
+		if (!empty($fileName))
+		{
+			// define our matching criteria
+			$match = array('filename' => $fileName);
 
-        // get an element criteria model for our files
-        $criteria = craft()->elements->getCriteria(ElementType::Asset, $match);
+			// get an element criteria model for our files
+			$criteria = craft()->elements->getCriteria(ElementType::Asset, $match);
 
-        // fetch the results from the database
-        return $criteria->find();
+			// fetch the results from the database
+			return $criteria->find();
+		}
+
+		return array();
     }
 
     // send the file to the client
